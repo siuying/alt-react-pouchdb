@@ -1,20 +1,36 @@
+const APP_ID = 'todo'
+const VERSION = '1'
+const CACHE_NAME = APP_ID + '-' + VERSION
+const URLS_TO_CACHE = [
+  '/',
+  '/index.html',
+  '/css/bootstrap.min.css',
+  '/css/styles.css',
+  '/js/bundle.js'
+]
+
 self.addEventListener('install', e => {
   e.waitUntil(
-    caches.open('airhorner').then(cache => {
-      return cache.addAll([
-        '/',
-        '/index.html',
-        '/css/bootstrap.min.css',
-        '/css/styles.css',
-        '/js/bundle.js'
-      ])
-      .then(() => self.skipWaiting())
+    caches.open(cacheName).then(cache => {
+      return cache
+        .addAll(URLS_TO_CACHE)
+        .then(() => self.skipWaiting())
     })
   )
 })
 
 self.addEventListener('activate', event => {
-  event.waitUntil(self.clients.claim())
+  event.waitUntil(
+    caches.keys().then(function(cacheNames) {
+      return Promise.all(
+        cacheNames.map(function(cacheName) {
+          if (cacheName != CACHE_NAME) {
+            return caches.delete(cacheName)
+          }
+        })
+      )
+    })
+  ).then(self.clients.claim())
 })
 
 self.addEventListener('fetch', event => {
