@@ -29,6 +29,7 @@
     "alt": "^0.15.6",
     "classnames": "^1.2.2",
     "object-assign": "^2.0.0",
+    "pouchdb-browser": "^5.4.5",
     "react": "^0.13.2"
   },
   "jest": {
