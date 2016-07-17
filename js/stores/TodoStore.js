@@ -2,7 +2,7 @@ import alt from '../alt'
 import merge from 'object-assign'
 
 import TodoActions from '../actions/TodoActions'
-import Database from '../Database'
+import Database from '../services/Database'
 
 class TodoStore {
   constructor() {
