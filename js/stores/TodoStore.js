@@ -1,72 +1,23 @@
-import alt from '../alt';
-import merge from 'object-assign';
+import alt from '../alt'
+import merge from 'object-assign'
 
-import TodoActions from '../actions/TodoActions';
-
-import PouchDB from 'pouchdb-browser';
-import {uuid} from 'pouchdb-utils';
-
-// Default adapter
-var database = new PouchDB("todo");
+import TodoActions from '../actions/TodoActions'
+import Database from '../Database'
 
 class TodoStore {
   constructor() {
     this.bindActions(TodoActions);
     this.todos = {};
-    this.loadAllTodos()
-  }
+    this.database = new Database();
 
-  loadAllTodos() {
-    database.allDocs({
-      include_docs: true
-    }).then((results) => {
-      this.todos = results.rows.map((row) => {
-        return row.doc
-      }).reduce(function(map, value) {
-        map[value._id] = value
-        return map
-      }, {})
-      this.emitChange()
-    }).catch((error) => {
-      console.log(error)
-    })
-  }
-
-  saveTodo(todo) {
-    database
-      .put(todo)
-      .then((response) => {
-        todo._rev = response.rev
-        this.todos[todo._id] = todo
+    // load all todos
+    this.database
+      .allTodos()
+      .then((todos) => {
+        this.todos = todos
         this.emitChange()
-      })
-      .catch((err) => {
-        console.log("error update item", err)
-      })
-  }
-
-  deleteTodos(todos) {
-    console.log("delete todos ...", todos)
-
-    // prepare deleted docs
-    var deleteTodos = todos.map((todo) => {
-      var updatedTodo = merge({}, todo)
-      updatedTodo._deleted = true
-      return updatedTodo
-    })
-
-    // Send bulk updates
-    database
-      .bulkDocs(deleteTodos)
-      .then((response) => {
-        // update the change
-        for (let todo of deleteTodos) {
-          delete this.todos[todo._id]
-        }
-        this.emitChange()
-      })
-      .catch((err) => {
-        console.log("error delete item", err, todos)
+      }).catch((error) => {
+        console.log(error)
       })
   }
 
@@ -75,29 +26,53 @@ class TodoStore {
     if (text === '') {
       return false
     }
-    const id = uuid()
     const todo = {
-      _id: id,
       complete: false,
       text: text
     }
-    this.saveTodo(todo)
+
+    // save todo
+    this.database
+      .saveTodo(todo)
+      .then((todo) => {
+        this.todos[todo._id] = todo
+        this.emitChange()
+      })
+      .catch((err) => {
+        console.log("error update item", err)
+      })
   }
 
   onToggleComplete (todo) {
     var updatedTodo = merge({}, todo)
     updatedTodo.complete = !todo.complete
-    this.saveTodo(updatedTodo)
+
+    // save todo
+    this.database
+      .saveTodo(updatedTodo)
+      .then((todo) => {
+        this.todos[todo._id] = todo
+        this.emitChange()
+      })
+      .catch((err) => {
+        console.log("error update item", err)
+      })
   }
 
   onClearComplete () {
-    var toChangeTodos = []
+    var todosToDelete = []
     for(let id in this.todos) {
       if (this.todos[id].complete === true) {
-        toChangeTodos.push(this.todos[id])
+        todosToDelete.push(this.todos[id])
       }
-    };
-    this.deleteTodos(toChangeTodos)
+    }
+    this.database.deleteTodos(todosToDelete)
+      .then((ids) => {
+        for (let id of ids) {
+          delete this.todos[id]
+        }
+        this.emitChange()
+      })
   }
 
   static areAnyComplete() {
