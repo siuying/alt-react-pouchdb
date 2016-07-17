@@ -11,7 +11,7 @@ const URLS_TO_CACHE = [
 
 self.addEventListener('install', e => {
   e.waitUntil(
-    caches.open(cacheName).then(cache => {
+    caches.open(CACHE_NAME).then(cache => {
       return cache
         .addAll(URLS_TO_CACHE)
         .then(() => self.skipWaiting())
