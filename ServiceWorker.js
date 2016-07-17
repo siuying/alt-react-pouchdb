@@ -9,8 +9,8 @@ const URLS_TO_CACHE = [
   '/alt-todo-pouchdb/js/bundle.js'
 ]
 
-self.addEventListener('install', e => {
-  e.waitUntil(
+self.addEventListener('install', event => {
+  event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
       return cache
         .addAll(URLS_TO_CACHE)
@@ -28,9 +28,9 @@ self.addEventListener('activate', event => {
             return caches.delete(cacheName)
           }
         })
-      )
+      ).then(self.clients.claim())
     })
-  ).then(self.clients.claim())
+  )
 })
 
 self.addEventListener('fetch', event => {
