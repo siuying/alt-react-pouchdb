@@ -2,11 +2,11 @@ const APP_ID = 'todo'
 const VERSION = '1'
 const CACHE_NAME = APP_ID + '-' + VERSION
 const URLS_TO_CACHE = [
-  '/',
-  '/index.html',
-  '/css/bootstrap.min.css',
-  '/css/styles.css',
-  '/js/bundle.js'
+  '/alt-todo-pouchdb/',
+  '/alt-todo-pouchdb/index.html',
+  '/alt-todo-pouchdb/css/bootstrap.min.css',
+  '/alt-todo-pouchdb/css/styles.css',
+  '/alt-todo-pouchdb/js/bundle.js'
 ]
 
 self.addEventListener('install', e => {
