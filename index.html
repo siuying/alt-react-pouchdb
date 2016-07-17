@@ -4,11 +4,19 @@
     <meta charset="utf-8">
     <title>Alt Todos</title>
 
+    <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/styles.css">
   </head>
   <body>
     <div id="alt-todo"></div>
 
+    <script>
+    if('serviceWorker' in navigator) {
+      navigator.serviceWorker
+               .register('/ServiceWorker.js')
+               .then(function() { console.log("Service Worker Registered"); });
+    }
+    </script>
     <script src="js/bundle.js"></script>
   </body>
 </html>
